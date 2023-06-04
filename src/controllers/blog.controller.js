@@ -8,8 +8,10 @@ const handleNonExistBlog = () => {
 
 const getBlogs = async (req, res, next) => {
   try {
-    const blogs = await Blog.find();
-
+    const blogs = await Blog.find().populate({
+      path: "author",
+      select: "-password -createdAt -updatedAt -_id",
+    });
     res.status(200).json({
       blogs,
     });
@@ -21,7 +23,10 @@ const getBlogs = async (req, res, next) => {
 const getBlog = async (req, res, next) => {
   const { blogId } = req.params;
   try {
-    const blog = await Blog.findById(blogId);
+    const blog = await Blog.findById(blogId).populate({
+      path: "authors",
+      select: "-password -createdAt -updatedAt -_id",
+    });
 
     if (!blog) return handleNonExistBlog();
 
@@ -39,9 +44,9 @@ const createBlog = async (req, res, next) => {
 
   try {
     if (!title || !content) {
-      return res.status(400).json({
-        message: "Invalid input data!",
-      });
+      const error = new Error("Invalid input data!");
+      error.status = 404;
+      throw error;
     }
     const blog = await Blog.create(blogData);
     res.status(201).json({

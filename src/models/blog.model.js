@@ -11,10 +11,14 @@ const blogSchema = new Schema(
       type: String,
       required: true,
     },
-    author: {
-      type: String,
-      default: "Anonymous",
-    },
+    author: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        default: "Anonymous",
+        required: true,
+      },
+    ],
     views: {
       type: Number,
       default: 0,
